@@ -1,23 +1,16 @@
 const { validationResult } = require("express-validator");
 
+const Post = require("../models/post");
+
 exports.getPosts = (req, res, next) => {
-  res.status(200).json({
-    message: "FETCH POST SUCCESS",
-    posts: [
-      {
-        title: "First Post",
-        content: "This is the first post !",
-      },
-      {
-        title: "Second Post",
-        content: "This is the second post !",
-      },
-      {
-        title: "Third Post",
-        content: "This is the third post !",
-      },
-    ],
-  });
+  Post.find()
+    .then((posts) => {
+      res.status(200).json({
+        message: "FETCH POST SUCCESS",
+        posts: posts,
+      });
+    })
+    .catch((err) => console.log(err));
 };
 
 exports.createPost = (req, res, next) => {
@@ -31,11 +24,18 @@ exports.createPost = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
 
-  res.status(200).json({
-    message: "CREATE POST SUCCESS",
-    post: {
-      title: title,
-      content: content,
-    },
+  const newPost = new Post({
+    title: title,
+    content: content,
   });
+
+  newPost
+    .save()
+    .then((result) => {
+      res.status(200).json({
+        message: "CREATE POST SUCCESS",
+        post: result,
+      });
+    })
+    .catch((err) => console.log(err));
 };
