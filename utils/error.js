@@ -8,6 +8,6 @@ exports.createAsyncError = (err, next) => {
 exports.createError = (statusCode, message, data) => {
   const error = new Error(message);
   error.statusCode = statusCode;
-  error.data = data || null;
+  error.data = data;
   return error;
 };

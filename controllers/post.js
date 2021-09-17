@@ -7,8 +7,25 @@ exports.getPosts = (req, res, next) => {
   Post.find()
     .then((posts) => {
       res.status(200).json({
-        message: "FETCH POST SUCCESS",
+        message: "FETCH POSTS SUCCESS",
         posts: posts,
+      });
+    })
+    .catch((err) => createAsyncError(err, next));
+};
+
+exports.getPost = (req, res, next) => {
+  const postId = req.params.postId;
+
+  Post.findById(postId)
+    .then((post) => {
+      if (!post) {
+        const error = createError(404, "Post Not Found");
+        throw error;
+      }
+      res.status(200).json({
+        message: "FETCH POST SUCCESS",
+        post: post,
       });
     })
     .catch((err) => createAsyncError(err, next));
@@ -17,7 +34,8 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    createError(500, "Validation Failed", errors.array());
+    const error = createError(500, "Validation Failed", errors.array());
+    throw error;
   }
   const title = req.body.title;
   const content = req.body.content;
