@@ -85,3 +85,23 @@ exports.updatePost = (req, res, next) => {
     })
     .catch((err) => createAsyncError(err, next));
 };
+
+exports.deletePost = (req, res, next) => {
+  const postId = req.params.postId;
+
+  Post.findById(postId)
+    .then((post) => {
+      if (!post) {
+        const error = createError(404, "Post Not Found");
+        throw error;
+      }
+      return Post.findByIdAndDelete(postId);
+    })
+    .then((result) => {
+      res.status(200).json({
+        message: "DELETE POST SUCCESS",
+        post: result,
+      });
+    })
+    .catch((err) => createAsyncError(err, next));
+};

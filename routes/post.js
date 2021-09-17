@@ -20,5 +20,6 @@ router.get("/posts", postController.getPosts);
 router.get("/post/:postId", postController.getPost);
 router.post("/post", postValidation, postController.createPost);
 router.put("/post/:postId", postValidation, postController.updatePost);
+router.delete("/post/:postId", postController.deletePost);
 
 module.exports = router;
