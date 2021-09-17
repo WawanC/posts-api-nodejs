@@ -55,3 +55,33 @@ exports.createPost = (req, res, next) => {
     })
     .catch((err) => createAsyncError(err, next));
 };
+
+exports.updatePost = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = createError(500, "Validation Failed", errors.array());
+    throw error;
+  }
+
+  const postId = req.params.postId;
+  const updatedTitle = req.body.title;
+  const updatedContent = req.body.content;
+
+  Post.findById(postId)
+    .then((post) => {
+      if (!post) {
+        const error = createError(404, "Post Not Found");
+        throw error;
+      }
+      post.title = updatedTitle;
+      post.content = updatedContent;
+      return post.save();
+    })
+    .then((result) => {
+      res.status(200).json({
+        message: "UPDATE POST SUCCESS",
+        post: result,
+      });
+    })
+    .catch((err) => createAsyncError(err, next));
+};
