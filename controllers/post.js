@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const { createAsyncError, createError } = require("../utils/error");
 
 const Post = require("../models/post");
 
@@ -10,16 +11,13 @@ exports.getPosts = (req, res, next) => {
         posts: posts,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => createAsyncError(err, next));
 };
 
 exports.createPost = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new Error("Validation Failed");
-    error.statusCode = 500;
-    error.data = errors.array();
-    throw error;
+    createError(500, "Validation Failed", errors.array());
   }
   const title = req.body.title;
   const content = req.body.content;
@@ -37,5 +35,5 @@ exports.createPost = (req, res, next) => {
         post: result,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => createAsyncError(err, next));
 };
