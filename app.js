@@ -1,4 +1,6 @@
+const dotenv = require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 
 const postRoutes = require("./routes/post");
 
@@ -24,4 +26,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(3000);
+mongoose
+  .connect(process.env.DB_URI)
+  .then((result) => {
+    console.log("Connected to DB");
+    app.listen(process.env.PORT);
+  })
+  .catch((err) => console.log(err));
