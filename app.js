@@ -1,5 +1,7 @@
 const express = require("express");
 
+const postRoutes = require("./routes/post");
+
 const app = express();
 
 app.use((req, res, next) => {
@@ -9,10 +11,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  res.status(200).json({
-    message: "Hello",
-  });
-});
+app.use(postRoutes);
 
 app.listen(3000);
