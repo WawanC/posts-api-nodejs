@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const { validationResult } = require("express-validator");
 const { createAsyncError, createError } = require("../utils/error");
 
@@ -39,10 +41,12 @@ exports.createPost = (req, res, next) => {
   }
   const title = req.body.title;
   const content = req.body.content;
+  const image = req.file ? req.file.filename : null;
 
   const newPost = new Post({
     title: title,
     content: content,
+    image: image,
   });
 
   newPost
@@ -66,6 +70,7 @@ exports.updatePost = (req, res, next) => {
   const postId = req.params.postId;
   const updatedTitle = req.body.title;
   const updatedContent = req.body.content;
+  const updatedImage = req.file ? req.file.filename : null;
 
   Post.findById(postId)
     .then((post) => {
@@ -75,6 +80,10 @@ exports.updatePost = (req, res, next) => {
       }
       post.title = updatedTitle;
       post.content = updatedContent;
+      if (updatedImage) {
+        deleteImage(post.image);
+        post.image = updatedImage;
+      }
       return post.save();
     })
     .then((result) => {
@@ -95,6 +104,9 @@ exports.deletePost = (req, res, next) => {
         const error = createError(404, "Post Not Found");
         throw error;
       }
+      if (post.image) {
+        deleteImage(post.image);
+      }
       return Post.findByIdAndDelete(postId);
     })
     .then((result) => {
@@ -104,4 +116,9 @@ exports.deletePost = (req, res, next) => {
       });
     })
     .catch((err) => createAsyncError(err, next));
+};
+
+const deleteImage = (imageName) => {
+  const filePath = path.join(__dirname, "..", "images", imageName);
+  fs.unlink(filePath, (err) => console.log(err));
 };
