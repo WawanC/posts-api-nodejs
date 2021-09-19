@@ -6,10 +6,16 @@ const { createAsyncError, createError } = require("../utils/error");
 const Post = require("../models/post");
 
 exports.getPosts = (req, res, next) => {
+  const page = req.query.page || 1;
+  const perPage = req.query.perPage || 2;
+
   Post.find()
+    .skip((page - 1) * +perPage)
+    .limit(+perPage)
     .then((posts) => {
       res.status(200).json({
         message: "FETCH POSTS SUCCESS",
+        page: page,
         posts: posts,
       });
     })
