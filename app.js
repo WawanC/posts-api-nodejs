@@ -6,6 +6,7 @@ const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 
 const postRoutes = require("./routes/post");
+const authRoutes = require("./routes/auth");
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -42,6 +43,7 @@ app.use((req, res, next) => {
 });
 
 app.use(postRoutes);
+app.use(authRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.statusCode || 500;
