@@ -4,6 +4,7 @@ const { validationResult } = require("express-validator");
 const { createAsyncError, createError } = require("../utils/error");
 
 const Post = require("../models/post");
+const User = require("../models/user");
 
 exports.getPosts = (req, res, next) => {
   const page = req.query.page || 1;
@@ -45,22 +46,33 @@ exports.createPost = (req, res, next) => {
     const error = createError(500, "Validation Failed", errors.array());
     throw error;
   }
+
   const title = req.body.title;
   const content = req.body.content;
   const image = req.file ? req.file.filename : null;
+  let creator;
 
   const newPost = new Post({
     title: title,
     content: content,
     image: image,
+    createdBy: req.userId,
   });
 
   newPost
     .save()
     .then((result) => {
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      creator = user;
+      user.posts.push(newPost);
+      return user.save();
+    })
+    .then((result) => {
       res.status(200).json({
         message: "CREATE POST SUCCESS",
-        post: result,
+        post: newPost,
       });
     })
     .catch((err) => createAsyncError(err, next));
@@ -84,6 +96,12 @@ exports.updatePost = (req, res, next) => {
         const error = createError(404, "Post Not Found");
         throw error;
       }
+
+      if (post.createdBy.toString() != req.userId) {
+        const error = createError(500, "Only Post Owner can edit this Post");
+        throw error;
+      }
+
       post.title = updatedTitle;
       post.content = updatedContent;
       if (updatedImage) {
@@ -110,6 +128,12 @@ exports.deletePost = (req, res, next) => {
         const error = createError(404, "Post Not Found");
         throw error;
       }
+
+      if (post.createdBy.toString() != req.userId) {
+        const error = createError(500, "Only Post Owner can delete this Post");
+        throw error;
+      }
+
       if (post.image) {
         deleteImage(post.image);
       }
