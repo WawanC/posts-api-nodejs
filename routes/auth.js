@@ -29,5 +29,6 @@ const signUpValidation = [
 ];
 
 router.put("/signup", signUpValidation, authController.signUp);
+router.post("/login", authController.login);
 
 module.exports = router;
