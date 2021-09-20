@@ -1,5 +1,6 @@
 const express = require("express");
 const { body } = require("express-validator");
+const isAuth = require("../middlewares/is-auth");
 
 const postController = require("../controllers/post");
 
@@ -18,8 +19,8 @@ const router = express.Router();
 
 router.get("/posts", postController.getPosts);
 router.get("/post/:postId", postController.getPost);
-router.post("/post", postValidation, postController.createPost);
-router.put("/post/:postId", postValidation, postController.updatePost);
-router.delete("/post/:postId", postController.deletePost);
+router.post("/post", isAuth, postValidation, postController.createPost);
+router.put("/post/:postId", isAuth, postValidation, postController.updatePost);
+router.delete("/post/:postId", isAuth, postController.deletePost);
 
 module.exports = router;
